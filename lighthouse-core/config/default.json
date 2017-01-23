@@ -96,7 +96,8 @@
     "dobetterweb/script-blocking-first-paint",
     "dobetterweb/uses-http2",
     "dobetterweb/uses-optimized-images",
-    "dobetterweb/uses-passive-event-listeners"
+    "dobetterweb/uses-passive-event-listeners",
+    "dobetterweb/uses-request-compression",
   ],
 
   "aggregations": [{
@@ -294,7 +295,8 @@
       "name": "Using bytes efficiently",
       "audits": {
         "unused-css-rules": {},
-        "uses-optimized-images": {}
+        "uses-optimized-images": {},
+        "uses-request-compression": {}
       }
     }, {
       "name": "Using modern CSS features",
