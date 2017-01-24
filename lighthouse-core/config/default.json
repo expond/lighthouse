@@ -97,7 +97,7 @@
     "dobetterweb/uses-http2",
     "dobetterweb/uses-optimized-images",
     "dobetterweb/uses-passive-event-listeners",
-    "dobetterweb/uses-request-compression",
+    "dobetterweb/uses-request-compression"
   ],
 
   "aggregations": [{
