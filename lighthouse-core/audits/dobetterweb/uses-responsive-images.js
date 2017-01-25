@@ -27,6 +27,7 @@
 const Audit = require('../audit');
 const URL = require('../../lib/url-shim');
 const Formatter = require('../../formatters/formatter');
+const NetworkHelper = require('../../lib/network-recorder');
 
 const KB_IN_BYTES = 1024;
 const WASTEFUL_THRESHOLD_AS_RATIO = 0.1;
@@ -44,7 +45,7 @@ class UsesResponsiveImages extends Audit {
         'Image sizes served should be based on the device display size to save network bytes. ' +
         'Learn more about [responsive images](https://developers.google.com/web/fundamentals/design-and-ui/media/images) ' +
         'and [client hints](https://developers.google.com/web/updates/2015/09/automating-resource-selection-with-client-hints).',
-      requiredArtifacts: ['ImageUsage', 'ContentWidth']
+      requiredArtifacts: ['ImageUsage', 'ContentWidth', 'networkRecords']
     };
   }
 
@@ -68,20 +69,17 @@ class UsesResponsiveImages extends Audit {
       return null;
     }
 
-    // TODO(#1517): use an average transfer time for data URI images
-    const size = image.networkRecord.resourceSize;
-    const transferTimeInMs = 1000 * (image.networkRecord.endTime -
-        image.networkRecord.responseReceivedTime);
-    const wastedBytes = Math.round(size * wastedRatio);
-    const wastedTime = Math.round(transferTimeInMs * wastedRatio);
-    const percentSavings = Math.round(100 * wastedRatio);
-    const label = `${Math.round(size / KB_IN_BYTES)}KB total, ${percentSavings}% potential savings`;
+    const totalBytes = image.networkRecord.resourceSize;
+    const wastedBytes = Math.round(totalBytes * wastedRatio);
 
     return {
       wastedBytes,
-      wastedTime,
       isWasteful: wastedRatioFullDPR > WASTEFUL_THRESHOLD_AS_RATIO,
-      result: {url, label},
+      result: {
+        url,
+        totalKb: Math.round(totalBytes / KB_IN_BYTES) + ' KB',
+        potentialSavings: Math.round(100 * wastedRatio) + '%'
+      },
     };
   }
 
@@ -92,10 +90,11 @@ class UsesResponsiveImages extends Audit {
   static audit(artifacts) {
     const images = artifacts.ImageUsage;
     const contentWidth = artifacts.ContentWidth;
+    const networkRecords = artifacts.networkRecords[Audit.DEFAULT_PASS];
+    const networkThroughput = NetworkHelper.computeAverageThroughput(networkRecords);
 
     let debugString;
     let totalWastedBytes = 0;
-    let totalWastedTime = 0;
     let hasWastefulImage = false;
     const DPR = contentWidth.devicePixelRatio;
     const results = images.reduce((results, image) => {
@@ -112,7 +111,6 @@ class UsesResponsiveImages extends Audit {
       }
 
       hasWastefulImage = hasWastefulImage || processed.isWasteful;
-      totalWastedTime += processed.wastedTime;
       totalWastedBytes += processed.wastedBytes;
       results.push(processed.result);
       return results;
@@ -121,7 +119,8 @@ class UsesResponsiveImages extends Audit {
     let displayValue;
     if (results.length) {
       const totalWastedKB = Math.round(totalWastedBytes / KB_IN_BYTES);
-      displayValue = `${totalWastedKB}KB (~${totalWastedTime}ms) potential savings`;
+      const totalWastedMs = Math.round(totalWastedBytes / networkThroughput * 1000);
+      displayValue = `${totalWastedKB}KB (~${totalWastedMs}ms) potential savings`;
     }
 
     return UsesResponsiveImages.generateAuditResult({
@@ -129,8 +128,15 @@ class UsesResponsiveImages extends Audit {
       displayValue,
       rawValue: !hasWastefulImage,
       extendedInfo: {
-        formatter: Formatter.SUPPORTED_FORMATS.URLLIST,
-        value: results
+        formatter: Formatter.SUPPORTED_FORMATS.TABLE,
+        value: {
+          results,
+          tableHeadings: {
+            url: 'URL',
+            totalKb: 'Original (KB)',
+            potentialSavings: 'Potential Savings (%)'
+          }
+        }
       }
     });
   }

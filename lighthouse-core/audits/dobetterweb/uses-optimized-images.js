@@ -27,6 +27,7 @@
 const Audit = require('../audit');
 const URL = require('../../lib/url-shim');
 const Formatter = require('../../formatters/formatter');
+const NetworkHelper = require('../../lib/network-recorder');
 
 const KB_IN_BYTES = 1024;
 const IGNORE_THRESHOLD_IN_BYTES = 2 * KB_IN_BYTES;
@@ -46,7 +47,7 @@ class UsesOptimizedImages extends Audit {
         'The following images could have smaller file sizes when compressed with ' +
         '[WebP](https://developers.google.com/speed/webp/) or JPEG at 80 quality. ' +
         '[Learn more about image optimization](https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/image-optimization).',
-      requiredArtifacts: ['OptimizedImages']
+      requiredArtifacts: ['OptimizedImages', 'networkRecords']
     };
   }
 
@@ -68,6 +69,8 @@ class UsesOptimizedImages extends Audit {
    */
   static audit(artifacts) {
     const images = artifacts.OptimizedImages;
+    const networkRecords = artifacts.networkRecords[Audit.DEFAULT_PASS];
+    const networkThroughput = NetworkHelper.computeAverageThroughput(networkRecords);
 
     if (images.rawValue === -1) {
       return UsesOptimizedImages.generateAuditResult(images);
@@ -114,7 +117,9 @@ class UsesOptimizedImages extends Audit {
 
     let displayValue = '';
     if (totalWastedBytes > 1000) {
-      displayValue = `${Math.round(totalWastedBytes / KB_IN_BYTES)}KB potential savings`;
+      const totalWastedKb = Math.round(totalWastedBytes / KB_IN_BYTES);
+      const totalWastedMs = Math.round(totalWastedBytes / networkThroughput * 1000);
+      displayValue = `${totalWastedKb}KB (~${totalWastedMs}ms) potential savings`;
     }
 
     let debugString;
@@ -134,8 +139,8 @@ class UsesOptimizedImages extends Audit {
           tableHeadings: {
             url: 'URL',
             total: 'Original (KB)',
-            webpSavings: 'WebP savings',
-            jpegSavings: 'JPEG savings'
+            webpSavings: 'WebP Savings (%)',
+            jpegSavings: 'JPEG Savings (%)',
           }
         }
       }

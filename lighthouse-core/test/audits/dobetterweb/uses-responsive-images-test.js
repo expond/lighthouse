@@ -15,7 +15,7 @@
  */
 'use strict';
 
-const UsesOptimizedImagesAudit = require('../../../audits/dobetterweb/uses-responsive-images.js');
+const UsesResponsiveImagesAudit = require('../../../audits/dobetterweb/uses-responsive-images.js');
 const assert = require('assert');
 
 /* eslint-env mocha */
@@ -45,8 +45,11 @@ function generateImage(clientSize, naturalSize, networkRecord, src) {
 }
 
 describe('Page uses responsive images', () => {
+  const networkRecords = {defaultPass: []};
+
   it('fails when an image is much larger than displayed size', () => {
-    const auditResult = UsesOptimizedImagesAudit.audit({
+    const auditResult = UsesResponsiveImagesAudit.audit({
+      networkRecords,
       ContentWidth: {devicePixelRatio: 1},
       ImageUsage: [
         generateImage(
@@ -63,12 +66,13 @@ describe('Page uses responsive images', () => {
     });
 
     assert.equal(auditResult.rawValue, false);
-    assert.equal(auditResult.extendedInfo.value.length, 1);
+    assert.equal(auditResult.extendedInfo.value.results.length, 1);
     assert.ok(/45KB/.test(auditResult.displayValue), 'computes total kb');
   });
 
   it('fails when an image is much larger than DPR displayed size', () => {
-    const auditResult = UsesOptimizedImagesAudit.audit({
+    const auditResult = UsesResponsiveImagesAudit.audit({
+      networkRecords,
       ContentWidth: {devicePixelRatio: 2},
       ImageUsage: [
         generateImage(
@@ -80,12 +84,13 @@ describe('Page uses responsive images', () => {
     });
 
     assert.equal(auditResult.rawValue, false);
-    assert.equal(auditResult.extendedInfo.value.length, 1);
+    assert.equal(auditResult.extendedInfo.value.results.length, 1);
     assert.ok(/80KB/.test(auditResult.displayValue), 'compute total kb');
   });
 
   it('handles images without network record', () => {
-    const auditResult = UsesOptimizedImagesAudit.audit({
+    const auditResult = UsesResponsiveImagesAudit.audit({
+      networkRecords,
       ContentWidth: {devicePixelRatio: 2},
       ImageUsage: [
         generateImage(
@@ -97,11 +102,12 @@ describe('Page uses responsive images', () => {
     });
 
     assert.equal(auditResult.rawValue, true);
-    assert.equal(auditResult.extendedInfo.value.length, 0);
+    assert.equal(auditResult.extendedInfo.value.results.length, 0);
   });
 
   it('passes when all images are not wasteful', () => {
-    const auditResult = UsesOptimizedImagesAudit.audit({
+    const auditResult = UsesResponsiveImagesAudit.audit({
+      networkRecords,
       ContentWidth: {devicePixelRatio: 2},
       ImageUsage: [
         generateImage(
@@ -124,6 +130,6 @@ describe('Page uses responsive images', () => {
     });
 
     assert.equal(auditResult.rawValue, true);
-    assert.equal(auditResult.extendedInfo.value.length, 2);
+    assert.equal(auditResult.extendedInfo.value.results.length, 2);
   });
 });
