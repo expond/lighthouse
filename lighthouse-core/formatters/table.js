@@ -34,6 +34,11 @@ class Table extends Formatter {
           }
 
           const table = Table.createTable(result.tableHeadings, result.results);
+          const headings = Object.keys(result.tableHeadings).map(key => {
+            return result.tableHeadings[key].toUpperCase();
+          });
+
+          output += `      ${headings.join(' ')}\n`;
 
           table.rows.forEach(row => {
             output += '      ';
@@ -78,13 +83,16 @@ class Table extends Formatter {
 
     const rows = results.map(result => {
       const cols = headingKeys.map(key => {
+        const val = result[key];
         switch (key) {
           case 'code':
-            return '`' + result[key].trim() + '`';
+            return '`' + val.trim() + '`';
           case 'lineCol':
             return `${result.line}:${result.col}`;
+          case 'isEval':
+            return val ? 'yes' : '';
           default:
-            return result[key];
+            return val;
         }
       });
 
