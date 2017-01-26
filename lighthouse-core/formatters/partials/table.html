@@ -11,6 +11,7 @@
 .table_list th {
   background-color: #eee;
   padding: 15px 10px;
+  line-height: 1.2;
 }
 .table_list td {
   padding: 10px;
@@ -26,6 +27,10 @@
 .table_list tr:hover {
   background-color: #fafafa;
 }
+.table_list pre {
+  margin: 0;
+}
+
 .table_list code {
   white-space: pre;
   font-family: monospace;
@@ -40,6 +45,8 @@
 }
 .table_list.multicolumn th,
 .table_list.multicolumn td {
+  display: flex;
+  align-items: center;
   flex: 1;
 }
 </style>
