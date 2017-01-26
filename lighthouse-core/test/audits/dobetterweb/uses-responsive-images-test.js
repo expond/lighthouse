@@ -45,11 +45,8 @@ function generateImage(clientSize, naturalSize, networkRecord, src) {
 }
 
 describe('Page uses responsive images', () => {
-  const networkRecords = {defaultPass: []};
-
   it('fails when an image is much larger than displayed size', () => {
-    const auditResult = UsesResponsiveImagesAudit.audit({
-      networkRecords,
+    const auditResult = UsesResponsiveImagesAudit.audit_({
       ContentWidth: {devicePixelRatio: 1},
       ImageUsage: [
         generateImage(
@@ -71,8 +68,7 @@ describe('Page uses responsive images', () => {
   });
 
   it('fails when an image is much larger than DPR displayed size', () => {
-    const auditResult = UsesResponsiveImagesAudit.audit({
-      networkRecords,
+    const auditResult = UsesResponsiveImagesAudit.audit_({
       ContentWidth: {devicePixelRatio: 2},
       ImageUsage: [
         generateImage(
@@ -89,8 +85,7 @@ describe('Page uses responsive images', () => {
   });
 
   it('handles images without network record', () => {
-    const auditResult = UsesResponsiveImagesAudit.audit({
-      networkRecords,
+    const auditResult = UsesResponsiveImagesAudit.audit_({
       ContentWidth: {devicePixelRatio: 2},
       ImageUsage: [
         generateImage(
@@ -106,8 +101,7 @@ describe('Page uses responsive images', () => {
   });
 
   it('passes when all images are not wasteful', () => {
-    const auditResult = UsesResponsiveImagesAudit.audit({
-      networkRecords,
+    const auditResult = UsesResponsiveImagesAudit.audit_({
       ContentWidth: {devicePixelRatio: 2},
       ImageUsage: [
         generateImage(

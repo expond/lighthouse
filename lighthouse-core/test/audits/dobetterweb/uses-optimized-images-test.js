@@ -37,12 +37,9 @@ function generateImage(type, originalSize, webpSize, jpegSize) {
 /* eslint-env mocha */
 
 describe('Page uses optimized images', () => {
-  const networkRecords = {defaultPass: []};
-
   it('fails when gatherer returns error', () => {
     const debugString = 'All image optimizations failed.';
-    const auditResult = UsesOptimizedImagesAudit.audit({
-      networkRecords,
+    const auditResult = UsesOptimizedImagesAudit.audit_({
       OptimizedImages: {
         rawValue: -1,
         debugString: debugString
@@ -53,8 +50,7 @@ describe('Page uses optimized images', () => {
   });
 
   it('fails when one jpeg image is unoptimized', () => {
-    const auditResult = UsesOptimizedImagesAudit.audit({
-      networkRecords,
+    const auditResult = UsesOptimizedImagesAudit.audit_({
       OptimizedImages: [
         generateImage('jpeg', 5000, 4000, 4500),
       ],
@@ -69,8 +65,7 @@ describe('Page uses optimized images', () => {
   });
 
   it('fails when one png image is highly unoptimized', () => {
-    const auditResult = UsesOptimizedImagesAudit.audit({
-      networkRecords,
+    const auditResult = UsesOptimizedImagesAudit.audit_({
       OptimizedImages: [
         generateImage('png', 100000, 40000),
       ],
@@ -80,8 +75,7 @@ describe('Page uses optimized images', () => {
   });
 
   it('fails when images are collectively unoptimized', () => {
-    const auditResult = UsesOptimizedImagesAudit.audit({
-      networkRecords,
+    const auditResult = UsesOptimizedImagesAudit.audit_({
       OptimizedImages: [
         generateImage('png', 50000, 30000),
         generateImage('jpeg', 50000, 30000, 40000),
@@ -95,8 +89,7 @@ describe('Page uses optimized images', () => {
   });
 
   it('passes when all images are sufficiently optimized', () => {
-    const auditResult = UsesOptimizedImagesAudit.audit({
-      networkRecords,
+    const auditResult = UsesOptimizedImagesAudit.audit_({
       OptimizedImages: [
         generateImage('png', 50000, 30000),
         generateImage('jpeg', 50000, 30000, 50001),
@@ -111,8 +104,7 @@ describe('Page uses optimized images', () => {
 
   it('limits output of data URIs', () => {
     const image = generateImage('data:png', 50000, 30000);
-    const auditResult = UsesOptimizedImagesAudit.audit({
-      networkRecords,
+    const auditResult = UsesOptimizedImagesAudit.audit_({
       OptimizedImages: [image],
     });
 
@@ -121,8 +113,7 @@ describe('Page uses optimized images', () => {
   });
 
   it('warns when images have failed', () => {
-    const auditResult = UsesOptimizedImagesAudit.audit({
-      networkRecords,
+    const auditResult = UsesOptimizedImagesAudit.audit_({
       OptimizedImages: [{failed: true, url: 'http://localhost/image.jpg'}],
     });
 

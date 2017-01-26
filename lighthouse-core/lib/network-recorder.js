@@ -166,51 +166,6 @@ class NetworkRecorder extends EventEmitter {
 
     return records;
   }
-
-  /**
-   * Computes the average throughput for the given records in bytes/second.
-   * Excludes data URI, failed or otherwise incomplete, and cached requests.
-   *
-   * @param {?Array<!WebInspector.NetworkRequest>} records
-   * @return {number}
-   */
-  static computeAverageThroughput(records) {
-    if (!records || !records.length) {
-      return 0;
-    }
-
-    let totalBytes = 0;
-    const timeBoundaries = records.reduce((boundaries, record) => {
-      if (/^data:/.test(record.url) || record.failed || !record.finished ||
-          record.statusCode > 300 || !record.transferSize) {
-        return boundaries;
-      }
-
-      totalBytes += record.transferSize;
-      boundaries.push({time: record.responseReceivedTime, isStart: true});
-      boundaries.push({time: record.endTime, isStart: false});
-      return boundaries;
-    }, []).sort((a, b) => a.time - b.time);
-
-    let inflight = 0;
-    let currentStart = 0;
-    let totalDuration = 0;
-    timeBoundaries.forEach(boundary => {
-      if (boundary.isStart) {
-        if (inflight === 0) {
-          currentStart = boundary.time;
-        }
-        inflight++;
-      } else {
-        inflight--;
-        if (inflight === 0) {
-          totalDuration += boundary.time - currentStart;
-        }
-      }
-    });
-
-    return totalBytes / totalDuration;
-  }
 }
 
 module.exports = NetworkRecorder;

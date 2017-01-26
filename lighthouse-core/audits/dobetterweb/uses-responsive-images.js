@@ -27,7 +27,6 @@
 const Audit = require('../audit');
 const URL = require('../../lib/url-shim');
 const Formatter = require('../../formatters/formatter');
-const NetworkHelper = require('../../lib/network-recorder');
 
 const KB_IN_BYTES = 1024;
 const WASTEFUL_THRESHOLD_AS_RATIO = 0.1;
@@ -88,10 +87,20 @@ class UsesResponsiveImages extends Audit {
    * @return {!AuditResult}
    */
   static audit(artifacts) {
+    const networkRecords = artifacts.networkRecords[Audit.DEFAULT_PASS];
+    return artifacts.requestNetworkThroughput(networkRecords).then(networkThroughput => {
+      return UsesResponsiveImages.audit_(artifacts, networkThroughput);
+    });
+  }
+
+  /**
+   * @param {!Artifacts} artifacts
+   * @param {number} networkThroughput
+   * @return {!AuditResult}
+   */
+  static audit_(artifacts, networkThroughput) {
     const images = artifacts.ImageUsage;
     const contentWidth = artifacts.ContentWidth;
-    const networkRecords = artifacts.networkRecords[Audit.DEFAULT_PASS];
-    const networkThroughput = NetworkHelper.computeAverageThroughput(networkRecords);
 
     let debugString;
     let totalWastedBytes = 0;

@@ -139,7 +139,7 @@ describe('Best Practices: unused css rules audit', () => {
     };
 
     it('fails when gatherers failed', () => {
-      const result = UnusedCSSAudit.audit({
+      const result = UnusedCSSAudit.audit_({
         networkRecords,
         URL: {finalUrl: ''},
         CSSUsage: {rawValue: -1, debugString: 'It errored'},
@@ -151,7 +151,7 @@ describe('Best Practices: unused css rules audit', () => {
     });
 
     it('passes when rules are used', () => {
-      const result = UnusedCSSAudit.audit({
+      const result = UnusedCSSAudit.audit_({
         networkRecords,
         URL: {finalUrl: ''},
         CSSUsage: [
@@ -181,7 +181,7 @@ describe('Best Practices: unused css rules audit', () => {
     });
 
     it('fails when rules are unused', () => {
-      const result = UnusedCSSAudit.audit({
+      const result = UnusedCSSAudit.audit_({
         networkRecords,
         URL: {finalUrl: ''},
         CSSUsage: [
@@ -220,7 +220,7 @@ describe('Best Practices: unused css rules audit', () => {
     });
 
     it('does not include duplicate sheets', () => {
-      const result = UnusedCSSAudit.audit({
+      const result = UnusedCSSAudit.audit_({
         networkRecords,
         URL: {finalUrl: ''},
         CSSUsage: [
@@ -247,7 +247,7 @@ describe('Best Practices: unused css rules audit', () => {
     });
 
     it('does not include empty sheets', () => {
-      const result = UnusedCSSAudit.audit({
+      const result = UnusedCSSAudit.audit_({
         networkRecords,
         URL: {finalUrl: ''},
         CSSUsage: [

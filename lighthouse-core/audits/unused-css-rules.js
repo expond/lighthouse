@@ -19,7 +19,6 @@
 const Audit = require('./audit');
 const Formatter = require('../formatters/formatter');
 const URL = require('../lib/url-shim');
-const NetworkHelper = require('../lib/network-recorder');
 
 const KB_IN_BYTES = 1024;
 const PREVIEW_LENGTH = 100;
@@ -170,11 +169,22 @@ class UnusedCSSRules extends Audit {
    * @return {!AuditResult}
    */
   static audit(artifacts) {
+    const networkRecords = artifacts.networkRecords[Audit.DEFAULT_PASS];
+    return artifacts.requestNetworkThroughput(networkRecords).then(networkThroughput => {
+      return UnusedCSSRules.audit_(artifacts, networkThroughput);
+    });
+  }
+
+  /**
+   * @param {!Artifacts} artifacts
+   * @param {number} networkThroughput
+   * @return {!AuditResult}
+   */
+  static audit_(artifacts, networkThroughput) {
     const styles = artifacts.Styles;
     const usage = artifacts.CSSUsage;
     const pageUrl = artifacts.URL.finalUrl;
-    const networkRecords = artifacts.networkRecords[Audit.DEFAULT_PASS] || [];
-    const networkThroughput = NetworkHelper.computeAverageThroughput(networkRecords);
+    const networkRecords = artifacts.networkRecords[Audit.DEFAULT_PASS];
 
     if (styles.rawValue === -1) {
       return UnusedCSSRules.generateAuditResult(styles);
