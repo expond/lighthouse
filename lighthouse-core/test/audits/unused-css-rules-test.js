@@ -121,8 +121,8 @@ describe('Best Practices: unused css rules audit', () => {
     });
 
     it('correctly computes url', () => {
-      assert.equal(map({header: {sourceURL: ''}}).url, 'inline  \n`dummy`');
-      assert.equal(map({header: {sourceURL: 'a'}}, 'http://g.co/a').url, 'inline  \n`dummy`');
+      assert.equal(map({header: {sourceURL: ''}}).url, '*inline*```dummy```');
+      assert.equal(map({header: {sourceURL: 'a'}}, 'http://g.co/a').url, '*inline*```dummy```');
       assert.equal(map({header: {sourceURL: 'foobar'}}).url, '/foobar');
     });
 

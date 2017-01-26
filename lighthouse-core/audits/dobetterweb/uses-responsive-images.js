@@ -128,7 +128,8 @@ class UsesResponsiveImages extends Audit {
     let displayValue;
     if (results.length) {
       const totalWastedKB = Math.round(totalWastedBytes / KB_IN_BYTES);
-      const totalWastedMs = Math.round(totalWastedBytes / networkThroughput * 1000);
+      // Only round to nearest 10ms since we're relatively hand-wavy
+      const totalWastedMs = Math.round(totalWastedBytes / networkThroughput * 100) * 10;
       displayValue = `${totalWastedKB}KB (~${totalWastedMs}ms) potential savings`;
     }
 

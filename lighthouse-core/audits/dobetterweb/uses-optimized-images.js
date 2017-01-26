@@ -127,7 +127,8 @@ class UsesOptimizedImages extends Audit {
     let displayValue = '';
     if (totalWastedBytes > 1000) {
       const totalWastedKb = Math.round(totalWastedBytes / KB_IN_BYTES);
-      const totalWastedMs = Math.round(totalWastedBytes / networkThroughput * 1000);
+      // Only round to nearest 10ms since we're relatively hand-wavy
+      const totalWastedMs = Math.round(totalWastedBytes / networkThroughput * 100) * 10;
       displayValue = `${totalWastedKb}KB (~${totalWastedMs}ms) potential savings`;
     }
 

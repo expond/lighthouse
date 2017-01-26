@@ -140,8 +140,7 @@ class UnusedCSSRules extends Audit {
     let url = stylesheetInfo.header.sourceURL;
     if (!url || url === pageUrl) {
       const contentPreview = UnusedCSSRules.determineContentPreview(stylesheetInfo.content);
-      // two spaces before the newline to trigger a line break
-      url = 'inline  \n`' + contentPreview + '`';
+      url = '*inline*```' + contentPreview + '```';
     } else {
       url = URL.getDisplayName(url);
     }
@@ -203,7 +202,8 @@ class UnusedCSSRules extends Audit {
     let displayValue = '';
     if (unused > 0) {
       const wastedKb = Math.round(wastedBytes / KB_IN_BYTES);
-      const wastedMs = Math.round(wastedBytes / networkThroughput * 1000);
+      // Only round to nearest 10ms since we're relatively hand-wavy
+      const wastedMs = Math.round(wastedBytes / networkThroughput * 100) * 10;
       displayValue = `${wastedKb}KB (~${wastedMs}ms) potential savings`;
     }
 
